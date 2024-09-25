@@ -1,0 +1,5 @@
+aiohttp
+async-timeout
+fake-useragent
+loguru
+websockets-proxy
