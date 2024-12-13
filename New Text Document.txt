@@ -48,3 +48,16 @@ async function getToken(privateKey) {
     console.log(`Error fetching token: ${error}`.red);
   }
 }
+
+async function getProfile(token) {
+  try {
+    const { data } = await axios({
+      url: apiBaseUrl + (getNetType() == 2 ? '/testnet' : '') + '/user/rewards/info',
+      method: 'GET',
+      headers: { ...HEADERS, Authorization: token },
+    });
+    return data.data;
+  } catch (error) {
+    console.log(`Error fetching profile: ${error}`.red);
+  }
+}
