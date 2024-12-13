@@ -13,3 +13,8 @@ const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
 const apiBaseUrl = 'https://odyssey-api-beta.sonic.game';
 var connection;
+
+function getKeypair(privateKey) {
+  const decodedPrivateKey = base58.decode(privateKey);
+  return solana.Keypair.fromSecretKey(decodedPrivateKey);
+}
