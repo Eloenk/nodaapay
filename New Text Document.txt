@@ -149,3 +149,22 @@ async function processPrivateKey(privateKey) {
   }
   console.log('');
 }
+
+(async () => {
+  try {
+    displayHeader();
+    getNetworkTypeFromUser();
+    connection = getConnection();
+
+    for (let i = 0; i < PRIVATE_KEYS.length; i++) {
+      const privateKey = PRIVATE_KEYS[i];
+      await processPrivateKey(privateKey);
+    }
+
+    console.log('All private keys processed.'.cyan);
+  } catch (error) {
+    console.log(`Error in bot operation: ${error}`.red);
+  } finally {
+    console.log('Thanks for using the bot!'.magenta);
+  }
+})();
