@@ -18,3 +18,33 @@ function getKeypair(privateKey) {
   const decodedPrivateKey = base58.decode(privateKey);
   return solana.Keypair.fromSecretKey(decodedPrivateKey);
 }
+
+async function getToken(privateKey) {
+  try {
+    const { data } = await axios({
+      url: apiBaseUrl + (getNetType() == 2 ? '/testnet' : '') + '/auth/sonic/challenge',
+      params: { wallet: getKeypair(privateKey).publicKey },
+      headers: HEADERS,
+    });
+
+    const sign = nacl.sign.detached(Buffer.from(data.data), getKeypair(privateKey).secretKey);
+    const signature = Buffer.from(sign).toString('base64');
+    const publicKey = getKeypair(privateKey).publicKey;
+    const encodedPublicKey = Buffer.from(publicKey.toBytes()).toString('base64');
+
+    const response = await axios({
+      url: apiBaseUrl + (getNetType() == 2 ? '/testnet' : '') + '/auth/sonic/authorize',
+      method: 'POST',
+      headers: HEADERS,
+      data: {
+        address: publicKey,
+        address_encoded: encodedPublicKey,
+        signature,
+      },
+    });
+
+    return response.data.data.token;
+  } catch (error) {
+    console.log(`Error fetching token: ${error}`.red);
+  }
+}
