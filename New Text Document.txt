@@ -1,0 +1,15 @@
+const fs = require('fs');
+require('colors');
+const solana = require('@solana/web3.js');
+const axios = require('axios').default;
+const base58 = require('bs58');
+const nacl = require('tweetnacl');
+const { getConnection, delay, getNetType } = require('./src/solanaUtils');
+const { HEADERS } = require('./src/headers');
+const { displayHeader, getNetworkTypeFromUser } = require('./src/displayUtils');
+const moment = require('moment');
+
+const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
+
+const apiBaseUrl = 'https://odyssey-api-beta.sonic.game';
+var connection;
