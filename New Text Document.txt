@@ -61,3 +61,21 @@ async function getProfile(token) {
     console.log(`Error fetching profile: ${error}`.red);
   }
 }
+
+async function doTransactions(tx, keypair, retries = 3) {
+  try {
+    const bufferTransaction = tx.serialize();
+    const signature = await connection.sendRawTransaction(bufferTransaction);
+    await connection.confirmTransaction(signature);
+    return signature;
+  } catch (error) {
+    if (retries > 0) {
+      console.log(`Retrying transaction... (${retries} retries left)`.yellow);
+      await new Promise((res) => setTimeout(res, 1000));
+      return doTransactions(tx, keypair, retries - 1);
+    } else {
+      console.log(`Error in transaction: ${error}`.red);
+      throw error;
+    }
+  }
+}
