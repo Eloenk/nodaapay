@@ -112,3 +112,40 @@ async function openMysteryBox(token, keypair, retries = 3) {
     }
   }
 }
+
+async function processPrivateKey(privateKey) {
+  try {
+    const publicKey = getKeypair(privateKey).publicKey.toBase58();
+    const token = await getToken(privateKey);
+    const profile = await getProfile(token);
+
+    if (profile.wallet_balance > 0) {
+      const balance = profile.wallet_balance / solana.LAMPORTS_PER_SOL;
+      const availableBoxes = profile.ring_monitor;
+
+      console.log(`Solana Balance: ${balance} SOL`.green);
+      console.log(`Available Box(es): ${availableBoxes}`.green);
+
+      // Automatically perform all tasks: daily claim, open boxes, and daily login
+      console.log(`[ ${moment().format('HH:mm:ss')} ] Starting daily claim...`.yellow);
+      await dailyClaim(token);
+
+      if (availableBoxes > 0) {
+        console.log(`[ ${moment().format('HH:mm:ss')} ] Opening ${availableBoxes} box(es)...`.yellow);
+        for (let i = 0; i < availableBoxes; i++) {
+          await openMysteryBox(token, getKeypair(privateKey));
+        }
+      }
+
+      console.log(`[ ${moment().format('HH:mm:ss')} ] Performing daily login...`.yellow);
+      await dailyLogin(token, getKeypair(privateKey));
+
+      console.log(`[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan);
+    } else {
+      console.log(`Insufficient balance to proceed.`.red);
+    }
+  } catch (error) {
+    console.log(`Error processing private key: ${error}`.red);
+  }
+  console.log('');
+}
